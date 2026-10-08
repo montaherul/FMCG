@@ -1,0 +1,42 @@
+# --- Visual Studio ---
+.vs/
+.vscode/
+*.user
+*.suo
+*.useroscache
+*.sln.docstates
+
+# --- Build results ---
+bin/
+obj/
+[Bb]in/
+[Oo]bj/
+*.nupkg
+
+# --- .NET user secrets (never commit credential files) ---
+**/secrets.json
+%APPDATA%/Microsoft/UserSecrets/
+
+# --- Environment / secrets ---
+.env
+.env.*
+!.env.example
+appsettings.Production.json
+
+# --- Logs ---
+*.log
+logs/
+
+# --- Frontend (web/) ---
+node_modules/
+dist/
+coverage/
+web/dist/
+
+# --- OS / editor ---
+.DS_Store
+Thumbs.db
+*.swp
+
+# --- Project-local tooling ---
+.qodo/

@@ -1,0 +1,12 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/TobaccoSaaS.Api/TobaccoSaaS.Api.csproj" />
+    <Project Path="src/TobaccoSaaS.Application/TobaccoSaaS.Application.csproj" />
+    <Project Path="src/TobaccoSaaS.Domain/TobaccoSaaS.Domain.csproj" />
+    <Project Path="src/TobaccoSaaS.Infrastructure/TobaccoSaaS.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/TobaccoSaaS.IntegrationTests/TobaccoSaaS.IntegrationTests.csproj" />
+    <Project Path="tests/TobaccoSaaS.UnitTests/TobaccoSaaS.UnitTests.csproj" />
+  </Folder>
+</Solution>
