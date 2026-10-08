@@ -1,38 +1,23 @@
 import { create } from 'zustand'
 import { authApi } from '@/lib/api/auth'
 import { clearTokens, initializeAuth, setTokens } from '@/lib/api/client'
-import type { UserProfile } from '@/lib/api/types'
 
 const STORAGE_KEY = 'tobacco.auth'
 
-interface StoredAuth {
-  user: UserProfile
-  refreshToken: string
-}
-
-interface AuthState {
-  user: UserProfile | null
-  status: 'unknown' | 'authenticated' | 'anonymous'
-  login: (email: string, password: string) => Promise<void>
-  logout: () => Promise<void>
-  bootstrap: () => Promise<void>
-  hasPermission: (code: string) => boolean
-}
-
-function readStored(): StoredAuth | null {
+function readStored() {
   const raw = localStorage.getItem(STORAGE_KEY)
   if (!raw) {
     return null
   }
 
   try {
-    return JSON.parse(raw) as StoredAuth
+    return JSON.parse(raw)
   } catch {
     return null
   }
 }
 
-function writeStored(value: StoredAuth | null) {
+function writeStored(value) {
   if (value) {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(value))
   } else {
@@ -40,7 +25,7 @@ function writeStored(value: StoredAuth | null) {
   }
 }
 
-export const useAuthStore = create<AuthState>((set, get) => ({
+export const useAuthStore = create((set, get) => ({
   user: null,
   status: 'unknown',
 

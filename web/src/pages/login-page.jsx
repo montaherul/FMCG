@@ -16,23 +16,21 @@ const schema = z.object({
   password: z.string().min(1, 'Password is required'),
 })
 
-type FormValues = z.infer<typeof schema>
-
 export function LoginPage() {
   const login = useAuthStore((state) => state.login)
   const navigate = useNavigate()
   const location = useLocation()
-  const [serverError, setServerError] = useState<string | null>(null)
+  const [serverError, setServerError] = useState(null)
 
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<FormValues>({ resolver: zodResolver(schema), defaultValues: { email: '', password: '' } })
+  } = useForm({ resolver: zodResolver(schema), defaultValues: { email: '', password: '' } })
 
-  const from = (location.state as { from?: string } | null)?.from ?? '/dashboard'
+  const from = location.state?.from ?? '/dashboard'
 
-  async function onSubmit(values: FormValues) {
+  async function onSubmit(values) {
     setServerError(null)
     try {
       await login(values.email, values.password)
@@ -63,9 +61,7 @@ export function LoginPage() {
               {errors.password && <p className="text-destructive text-xs">{errors.password.message}</p>}
             </div>
 
-            {serverError && (
-              <p className="bg-destructive/10 text-destructive rounded-md px-3 py-2 text-sm">{serverError}</p>
-            )}
+            {serverError && <p className="bg-destructive/10 text-destructive rounded-md px-3 py-2 text-sm">{serverError}</p>}
 
             <Button type="submit" disabled={isSubmitting}>
               {isSubmitting && <Loader2 className="size-4 animate-spin" />}

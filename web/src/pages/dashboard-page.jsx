@@ -46,16 +46,11 @@ export function DashboardPage() {
         <CardContent>
           <div className="flex flex-wrap gap-2">
             {(user?.permissions ?? []).map((permission) => (
-              <span
-                key={permission}
-                className="bg-muted text-muted-foreground rounded-md px-2 py-1 font-mono text-xs"
-              >
+              <span key={permission} className="bg-muted text-muted-foreground rounded-md px-2 py-1 font-mono text-xs">
                 {permission}
               </span>
             ))}
-            {user?.permissions.length === 0 && (
-              <span className="text-muted-foreground text-sm">No permissions assigned.</span>
-            )}
+            {user?.permissions.length === 0 && <span className="text-muted-foreground text-sm">No permissions assigned.</span>}
           </div>
         </CardContent>
       </Card>

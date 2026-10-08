@@ -1,19 +1,13 @@
-import { LayoutDashboard, LogOut, Moon, ShieldCheck, Sun, Users } from 'lucide-react'
+import { Building2, LayoutDashboard, LogOut, Moon, ShieldCheck, Sun, Users } from 'lucide-react'
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { useTheme } from '@/components/theme-provider'
 import { cn } from '@/lib/utils'
 import { useAuthStore } from '@/store/auth'
 
-interface NavItem {
-  to: string
-  label: string
-  icon: typeof LayoutDashboard
-  permission?: string
-}
-
-const navItems: NavItem[] = [
+const navItems = [
   { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { to: '/tenants', label: 'Tenants', icon: Building2, permission: 'platform.tenant.view' },
   { to: '/users', label: 'Users', icon: Users, permission: 'user.view' },
   { to: '/roles', label: 'Roles & Permissions', icon: ShieldCheck, permission: 'role.view' },
 ]
@@ -64,9 +58,7 @@ export function AppLayout() {
 
       <div className="flex flex-1 flex-col">
         <header className="bg-background/80 flex h-14 items-center justify-between border-b px-4 backdrop-blur">
-          <div className="text-sm font-medium">
-            {user?.isPlatformScope ? 'Platform' : 'Tenant'} workspace
-          </div>
+          <div className="text-sm font-medium">{user?.isPlatformScope ? 'Platform' : 'Tenant'} workspace</div>
           <div className="flex items-center gap-3">
             <span className="text-muted-foreground hidden text-sm sm:inline">{user?.fullName}</span>
             <Button variant="ghost" size="icon" onClick={toggle} title="Toggle theme">

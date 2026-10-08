@@ -1,25 +1,19 @@
-import axios, { AxiosError, type InternalAxiosRequestConfig } from 'axios'
-import type { ApiEnvelope, TokenResponse } from './types'
+import axios from 'axios'
 
 const baseURL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5085/api/v1'
 
 export const api = axios.create({ baseURL })
 
-let accessToken: string | null = null
-let refreshToken: string | null = null
+let accessToken = null
+let refreshToken = null
 
-interface AuthHandlers {
-  onTokens?: (accessToken: string, refreshToken: string) => void
-  onExpired?: () => void
-}
+let handlers = {}
 
-let handlers: AuthHandlers = {}
-
-export function initializeAuth(next: AuthHandlers) {
+export function initializeAuth(next) {
   handlers = next
 }
 
-export function setTokens(access: string | null, refresh: string | null) {
+export function setTokens(access, refresh) {
   accessToken = access
   refreshToken = refresh
 }
@@ -36,16 +30,16 @@ api.interceptors.request.use((config) => {
   return config
 })
 
-let refreshing: Promise<boolean> | null = null
+let refreshing = null
 
-async function refreshTokens(): Promise<boolean> {
+async function refreshTokens() {
   if (!refreshToken) {
     return false
   }
 
   try {
-    const response = await axios.post<ApiEnvelope<TokenResponse>>(`${baseURL}/auth/refresh`, { refreshToken })
-    const data = response.data.data
+    const response = await axios.post(`${baseURL}/auth/refresh`, { refreshToken })
+    const data = response.data?.data
     if (!data) {
       return false
     }
@@ -61,8 +55,8 @@ async function refreshTokens(): Promise<boolean> {
 
 api.interceptors.response.use(
   (response) => response,
-  async (error: AxiosError) => {
-    const original = error.config as (InternalAxiosRequestConfig & { _retry?: boolean }) | undefined
+  async (error) => {
+    const original = error.config
 
     if (
       error.response?.status === 401 &&

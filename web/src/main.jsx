@@ -19,7 +19,7 @@ const queryClient = new QueryClient({
 
 void useAuthStore.getState().bootstrap()
 
-createRoot(document.getElementById('root')!).render(
+createRoot(document.getElementById('root')).render(
   <StrictMode>
     <ThemeProvider>
       <QueryClientProvider client={queryClient}>
