@@ -3,6 +3,7 @@ using TobaccoSaaS.Application.Common.Interfaces;
 using TobaccoSaaS.Domain.Common;
 using TobaccoSaaS.Domain.Entities.Audit;
 using TobaccoSaaS.Domain.Entities.Identity;
+using TobaccoSaaS.Domain.Entities.Organization;
 using TobaccoSaaS.Domain.Entities.Tenancy;
 
 namespace TobaccoSaaS.Infrastructure.Data;
@@ -51,6 +52,14 @@ public sealed class AppDbContext : DbContext
 
     public DbSet<UserScope> UserScopes => Set<UserScope>();
 
+    public DbSet<Employee> Employees => Set<Employee>();
+
+    public DbSet<OrgUnit> OrgUnits => Set<OrgUnit>();
+
+    public DbSet<Position> Positions => Set<Position>();
+
+    public DbSet<EmployeePosition> EmployeePositions => Set<EmployeePosition>();
+
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -97,6 +106,17 @@ public sealed class AppDbContext : DbContext
 
         // Users share one global namespace (unique email); tenant callers only ever see their own.
         modelBuilder.Entity<User>()
+            .HasQueryFilter(e => e.DeletedAt == null && (CurrentTenantId == null || e.TenantId == CurrentTenantId));
+
+        // Organization module: tenant-owned, soft-deleted rows hidden and cross-tenant reads blocked
+        // centrally (spec §3.3, §18.1, §5.4 tenant isolation).
+        modelBuilder.Entity<Employee>()
+            .HasQueryFilter(e => e.DeletedAt == null && (CurrentTenantId == null || e.TenantId == CurrentTenantId));
+        modelBuilder.Entity<OrgUnit>()
+            .HasQueryFilter(e => e.DeletedAt == null && (CurrentTenantId == null || e.TenantId == CurrentTenantId));
+        modelBuilder.Entity<Position>()
+            .HasQueryFilter(e => e.DeletedAt == null && (CurrentTenantId == null || e.TenantId == CurrentTenantId));
+        modelBuilder.Entity<EmployeePosition>()
             .HasQueryFilter(e => e.DeletedAt == null && (CurrentTenantId == null || e.TenantId == CurrentTenantId));
 
         modelBuilder.Entity<AuditLog>()

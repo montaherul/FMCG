@@ -268,6 +268,11 @@ Warehouse ERP (bins/batches/expiry) · native mobile apps (PWA is v1) · route o
 - **§37 no invented structure/APIs/tables** — every table, endpoint and permission code comes from the spec; none are fabricated.
 - **§30/§42.13 never fabricate build/test results** — each pass reports exactly what was built, run and left unverified.
 
+### Documented deviations
+
+- **Build step 05 (Organization) — `employees` table included early.** The spec groups `employees` under Identity/master-data (§19.3, Ch. 6), but `employee_positions` carries a FK to `employees` (§19.4). Rather than create `employee_positions` without its referenced table, the spec's `employees` DDL, `Employee` entity, EF configuration and migration were delivered together with the Organization step. This keeps the migration runnable and FK-valid; no invented columns or tables were added. The Employees module (API/CRUD) remains a later step.
+- **Spec-contractual DDL applied in step 05.** The Organization tables add `CHECK` constraints and spec-named partial indexes (`ix_positions_unit ... WHERE is_active`, `ix_emp_pos_employee`, `ix_org_units_tenant_parent`) exactly as the spec DDL defines, even though build steps 01–04 did not retrofit checks/filters onto earlier tables. Earlier tables were intentionally left untouched (no unrelated changes).
+
 ---
 
 *End of BUILD_PLAN.md*

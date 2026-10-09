@@ -1,7 +1,9 @@
 using FluentValidation;
 using TobaccoSaaS.Application.Features.Auth;
+using TobaccoSaaS.Application.Features.Organization;
 using TobaccoSaaS.Application.Features.Rbac;
 using TobaccoSaaS.Application.Features.Tenancy;
+using TobaccoSaaS.Domain.Common;
 
 namespace TobaccoSaaS.Application.Common.Validation;
 
@@ -74,5 +76,67 @@ public sealed class SetUserScopeRequestValidator : AbstractValidator<SetUserScop
     {
         RuleFor(x => x.UserId).NotEmpty();
         RuleFor(x => x.ScopeLevel).NotEmpty().MaximumLength(30);
+    }
+}
+
+public sealed class CreateOrgUnitRequestValidator : AbstractValidator<CreateOrgUnitRequest>
+{
+    public CreateOrgUnitRequestValidator()
+    {
+        RuleFor(x => x.Name).NotEmpty().MaximumLength(200);
+        RuleFor(x => x.Code).MaximumLength(50);
+        RuleFor(x => x.UnitType).NotEmpty().Must(IsValidUnitType)
+            .WithMessage("UnitType must be one of: " + string.Join(", ", SpecVocabulary.UnitTypes));
+        RuleFor(x => x.ParentId).NotEmpty().When(x => x.ParentId.HasValue);
+    }
+
+    private static bool IsValidUnitType(string? value)
+        => SpecVocabulary.UnitTypes.Any(t => string.Equals(t, value?.Trim(), StringComparison.OrdinalIgnoreCase));
+}
+
+public sealed class UpdateOrgUnitRequestValidator : AbstractValidator<UpdateOrgUnitRequest>
+{
+    public UpdateOrgUnitRequestValidator()
+    {
+        RuleFor(x => x.Name).NotEmpty().MaximumLength(200);
+        RuleFor(x => x.Code).MaximumLength(50);
+        RuleFor(x => x.UnitType).NotEmpty().Must(IsValidUnitType)
+            .WithMessage("UnitType must be one of: " + string.Join(", ", SpecVocabulary.UnitTypes));
+        RuleFor(x => x.ParentId).NotEmpty().When(x => x.ParentId.HasValue);
+    }
+
+    private static bool IsValidUnitType(string? value)
+        => SpecVocabulary.UnitTypes.Any(t => string.Equals(t, value?.Trim(), StringComparison.OrdinalIgnoreCase));
+}
+
+public sealed class CreatePositionRequestValidator : AbstractValidator<CreatePositionRequest>
+{
+    public CreatePositionRequestValidator()
+    {
+        RuleFor(x => x.OrgUnitId).NotEmpty();
+        RuleFor(x => x.Title).NotEmpty().MaximumLength(200);
+        RuleFor(x => x.ReportsTo).NotEmpty().When(x => x.ReportsTo.HasValue);
+        RuleFor(x => x.DefaultRoleId).NotEmpty().When(x => x.DefaultRoleId.HasValue);
+    }
+}
+
+public sealed class UpdatePositionRequestValidator : AbstractValidator<UpdatePositionRequest>
+{
+    public UpdatePositionRequestValidator()
+    {
+        RuleFor(x => x.OrgUnitId).NotEmpty();
+        RuleFor(x => x.Title).NotEmpty().MaximumLength(200);
+        RuleFor(x => x.ReportsTo).NotEmpty().When(x => x.ReportsTo.HasValue);
+        RuleFor(x => x.DefaultRoleId).NotEmpty().When(x => x.DefaultRoleId.HasValue);
+    }
+}
+
+public sealed class AssignEmployeePositionRequestValidator : AbstractValidator<AssignEmployeePositionRequest>
+{
+    public AssignEmployeePositionRequestValidator()
+    {
+        RuleFor(x => x.EmployeeId).NotEmpty();
+        RuleFor(x => x.ValidFrom).NotEmpty();
+        RuleFor(x => x.ValidTo).GreaterThanOrEqualTo(x => x.ValidFrom).When(x => x.ValidTo.HasValue);
     }
 }

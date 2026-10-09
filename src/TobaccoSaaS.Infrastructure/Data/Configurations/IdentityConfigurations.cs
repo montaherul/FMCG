@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using TobaccoSaaS.Domain.Common;
 using TobaccoSaaS.Domain.Entities.Identity;
 
 namespace TobaccoSaaS.Infrastructure.Data.Configurations;
@@ -110,5 +111,53 @@ public sealed class UserScopeConfiguration : IEntityTypeConfiguration<UserScope>
 
         b.HasIndex(x => x.UserId);
         b.HasIndex(x => x.ScopeNodeId);
+    }
+}
+
+/// <summary>HR identity table (spec §19.3). Shipped with the organization migration because
+/// <c>employee_positions</c> references it (spec group order: identity before organization).</summary>
+public sealed class EmployeeConfiguration : IEntityTypeConfiguration<Employee>
+{
+    public void Configure(EntityTypeBuilder<Employee> b)
+    {
+        b.ToTable("employees");
+        b.HasKey(x => x.Id);
+        b.Property(x => x.TenantId).IsRequired();
+        b.Property(x => x.EmployeeCode).HasMaxLength(50).IsRequired();
+        b.Property(x => x.FullName).HasMaxLength(200).IsRequired();
+        b.Property(x => x.PhotoKey).HasMaxLength(260);
+        b.Property(x => x.NationalId).HasMaxLength(40);
+        b.Property(x => x.Phone).HasMaxLength(32).IsRequired();
+        b.Property(x => x.Email).HasMaxLength(320);
+        b.Property(x => x.Address).HasMaxLength(500);
+        b.Property(x => x.Gender)
+            .HasConversion(
+                v => v.HasValue ? SpecVocabulary.GenderToDb(v.Value) : null,
+                s => s == null ? null : SpecVocabulary.GenderFromDb(s))
+            .HasMaxLength(10);
+        b.Property(x => x.Status)
+            .HasConversion(
+                v => SpecVocabulary.EmployeeStatusToDb(v),
+                s => SpecVocabulary.EmployeeStatusFromDb(s))
+            .HasMaxLength(20)
+            .IsRequired();
+
+        b.HasOne(x => x.User).WithMany().HasForeignKey(x => x.UserId)
+            .OnDelete(DeleteBehavior.NoAction);
+
+        // Spec §19.3 unique indexes (soft-delete filtered) + one user account per employee.
+        b.HasIndex(x => new { x.TenantId, x.EmployeeCode }).IsUnique()
+            .HasDatabaseName("uq_employees_code").HasFilter("deleted_at IS NULL");
+        b.HasIndex(x => new { x.TenantId, x.Phone }).IsUnique()
+            .HasDatabaseName("uq_employees_phone").HasFilter("deleted_at IS NULL");
+        b.HasIndex(x => x.UserId).IsUnique();
+
+        b.ToTable(t =>
+        {
+            t.HasCheckConstraint("ck_employees_status",
+                "status IN ('ACTIVE', 'INACTIVE', 'SUSPENDED', 'TERMINATED', 'ON_LEAVE')");
+            t.HasCheckConstraint("ck_employees_gender",
+                "gender IS NULL OR gender IN ('MALE', 'FEMALE', 'OTHER')");
+        });
     }
 }

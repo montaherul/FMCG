@@ -44,3 +44,29 @@ public enum FeatureFlagState
     Enabled = 1,
     Preview = 2
 }
+
+/// <summary>Org tree node kind (spec §5.1; column <c>org_units.unit_type</c>).</summary>
+public enum OrgUnitType
+{
+    Organization = 0,
+    BusinessUnit = 1,
+    Department = 2
+}
+
+/// <summary>Employee lifecycle status (spec §19.3; column <c>employees.status</c>, default ACTIVE).</summary>
+public enum EmployeeStatus
+{
+    Active = 0,
+    Inactive = 1,
+    Suspended = 2,
+    Terminated = 3,
+    OnLeave = 4
+}
+
+/// <summary>Optional employee gender (spec §19.3; column <c>employees.gender</c>).</summary>
+public enum Gender
+{
+    Male = 0,
+    Female = 1,
+    Other = 2
+}
