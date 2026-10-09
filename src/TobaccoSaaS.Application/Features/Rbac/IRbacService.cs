@@ -8,6 +8,8 @@ public interface IRbacService
 
     Task<RoleDto> UpdateRolePermissionsAsync(Guid roleId, UpdateRolePermissionsRequest request, CancellationToken ct = default);
 
+    Task<List<string>> GetRolePermissionsAsync(Guid roleId, CancellationToken ct = default);
+
     Task<List<PermissionDto>> ListPermissionsAsync(CancellationToken ct = default);
 
     Task<List<UserSummaryDto>> ListUsersAsync(CancellationToken ct = default);

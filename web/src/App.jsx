@@ -4,7 +4,9 @@ import { ProtectedRoute } from '@/components/protected-route'
 import { DashboardPage } from '@/pages/dashboard-page'
 import { LoginPage } from '@/pages/login-page'
 import { NotFoundPage } from '@/pages/not-found-page'
+import { RolesPage } from '@/pages/roles-page'
 import { TenantsPage } from '@/pages/tenants-page'
+import { UsersPage } from '@/pages/users-page'
 
 export default function App() {
   return (
@@ -15,6 +17,8 @@ export default function App() {
           <Route index element={<Navigate to="/dashboard" replace />} />
           <Route path="dashboard" element={<DashboardPage />} />
           <Route path="tenants" element={<TenantsPage />} />
+          <Route path="roles" element={<RolesPage />} />
+          <Route path="users" element={<UsersPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Route>
       </Route>

@@ -36,6 +36,11 @@ public sealed class RolesController : ApiControllerBase
     public async Task<ActionResult<ApiResponse<RoleDto>>> UpdatePermissions(Guid id, [FromBody] UpdateRolePermissionsRequest request, CancellationToken ct)
         => Ok(ApiResponse<RoleDto>.Ok(await _rbac.UpdateRolePermissionsAsync(id, request, ct)));
 
+    [HttpGet("{id:guid}/permissions")]
+    [HasPermission("role.view")]
+    public async Task<ActionResult<ApiResponse<List<string>>>> GetPermissions(Guid id, CancellationToken ct)
+        => Ok(ApiResponse<List<string>>.Ok(await _rbac.GetRolePermissionsAsync(id, ct)));
+
     [HttpGet("/api/v1/permissions")]
     [HasPermission("role.view")]
     public async Task<ActionResult<ApiResponse<List<PermissionDto>>>> Permissions(CancellationToken ct)

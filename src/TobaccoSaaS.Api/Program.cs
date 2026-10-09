@@ -16,6 +16,9 @@ using TobaccoSaaS.Infrastructure.Security;
 
 var builder = WebApplication.CreateBuilder(args);
 
+LoadDotEnvFile();
+builder.Configuration.AddEnvironmentVariables();
+
 builder.Host.UseSerilog((context, loggerConfiguration) =>
     loggerConfiguration.ReadFrom.Configuration(context.Configuration).Enrich.FromLogContext());
 
@@ -128,6 +131,48 @@ static async Task SeedAsync(WebApplication app)
     {
         scope.ServiceProvider.GetRequiredService<ILogger<Program>>()
             .LogWarning(ex, "Database seeding skipped (database unavailable). The API will still start.");
+    }
+}
+
+static void LoadDotEnvFile()
+{
+    var directory = new DirectoryInfo(Directory.GetCurrentDirectory());
+    while (directory is not null)
+    {
+        var candidate = Path.Combine(directory.FullName, ".env");
+        if (File.Exists(candidate))
+        {
+            foreach (var rawLine in File.ReadAllLines(candidate))
+            {
+                var line = rawLine.Trim();
+                if (line.Length == 0 || line.StartsWith('#'))
+                {
+                    continue;
+                }
+
+                var separator = line.IndexOf('=');
+                if (separator <= 0)
+                {
+                    continue;
+                }
+
+                var key = line[..separator].Trim();
+                var value = line[(separator + 1)..].Trim().Trim('"');
+                if (key.Length == 0)
+                {
+                    continue;
+                }
+
+                if (Environment.GetEnvironmentVariable(key) is null)
+                {
+                    Environment.SetEnvironmentVariable(key, value);
+                }
+            }
+
+            return;
+        }
+
+        directory = directory.Parent;
     }
 }
 

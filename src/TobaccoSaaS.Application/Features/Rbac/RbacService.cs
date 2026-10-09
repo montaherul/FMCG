@@ -101,6 +101,28 @@ public sealed class RbacService : IRbacService
         return new RoleDto(role.Id, role.Code, role.Name, role.Scope, role.IsSystem, request.PermissionCodes.Count);
     }
 
+    public async Task<List<string>> GetRolePermissionsAsync(Guid roleId, CancellationToken ct = default)
+    {
+        var tenantId = ResolveTenantId();
+        var role = await _uow.Repository<Role>().GetByIdAsync(roleId, ct)
+            ?? throw new NotFoundException("Role not found.");
+
+        if (role.TenantId != tenantId || role.Scope == RoleScope.Platform)
+        {
+            throw new ForbiddenException("You cannot view this role.");
+        }
+
+        var links = await _uow.Repository<RolePermission>().ListAsync(rp => rp.RoleId == roleId, ct);
+        var ids = links.Select(l => l.PermissionId).ToList();
+        if (ids.Count == 0)
+        {
+            return new List<string>();
+        }
+
+        var permissions = await _uow.Repository<Permission>().ListAsync(p => ids.Contains(p.Id), ct);
+        return permissions.Select(p => p.Code).OrderBy(c => c).ToList();
+    }
+
     public async Task<List<PermissionDto>> ListPermissionsAsync(CancellationToken ct = default)
     {
         var permissions = await _uow.Repository<Permission>().ListAsync(null, ct);
